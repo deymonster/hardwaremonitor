@@ -36,6 +36,7 @@ class ZeroConfService:
         except Exception as e:
             logger.error(f"Ошибка при получении IP-адреса: {e}")
             raise
+
     def start(self):
         self.zeroconf.register_service(self.info)
         logger.info(f"Сервис '{self.service_name}' зарегистрирован на порту {self.port}")

@@ -9,14 +9,18 @@ from core.utils.services.zeroconf_service import ZeroConfService
 from core.utils.services.broadcast_service import BroadcastHandler
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from api.ws import ws
+from api.ws import ws_router
+
+service_zeroconf = ZeroConfService(
+    service_name="NITRINOnet_HardwareMonitor",
+    service_type="_http._tcp.local.",
+    port=8081
+)
+
+service_broadcast = BroadcastHandler()
 
 
-service_zeroconf= ZeroConfService(service_name="NITRINOnet_HardwareMonitor", service_type="_http._tcp.local.", port=8081)
-service_broadcast= BroadcastHandler()
-
-
-def create_app():
+def create_app() -> FastAPI:
     app = FastAPI(
         title="HardwareMonitor",
         version="0.1",
@@ -56,23 +60,24 @@ def create_app():
 
     #app.mount("/ws", ws)
 
-
-    @app.on_event("startup")
-    async def startup_event():
-        service_zeroconf.start()
-        #await service_broadcast.start()
-        print("Server is starting up...") # here will be checking signature
-
-    @app.on_event("shutdown")
-    async def shutdown_event():
-        service_zeroconf.stop()
-
-
-
     app.include_router(api_router)
-
-    # create_admin_panel(app)
+    app.include_router(ws_router)
 
     add_pagination(app)
 
     return app
+
+
+base_app = create_app()
+
+
+@base_app.on_event("startup")
+async def startup_event():
+    service_zeroconf.start()
+    # await service_broadcast.start()
+    print("Server is starting up...")  # here will be checking signature
+
+
+@base_app.on_event("shutdown")
+async def shutdown_event():
+    service_zeroconf.stop()

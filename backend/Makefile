@@ -1,6 +1,8 @@
-.PHONY: run-dev
+THIS_FILE := $(lastword $(MAKEFILE_LIST))
+.PHONY: run-dev build up stop restart  destroy log shell manage makemigrations migrate test
+
 run-dev: ## start docker-compose.dev.yml
-	docker compose -f docker-compose.dev.yml up -d
+	docker-compose -f docker-compose.dev.yml up -d
 
 .PHONY: stop-dev
 stop-dev: ## start docker-compose.dev.yml
