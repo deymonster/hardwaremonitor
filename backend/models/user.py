@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 from sqlmodel import Relationship, SQLModel
 from fastapi_users_db_sqlmodel import SQLModelBaseUserDB
 from models.base import BaseTable
+from models.company import Company
 from models.company_user import CompanyUser
 
 

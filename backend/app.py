@@ -1,12 +1,19 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware import Middleware
 from fastapi_async_sqlalchemy import SQLAlchemyMiddleware
 from fastapi_pagination import add_pagination
 from api.router import api_router
 from config import settings
 from core.db import pydantic_serializer
+from core.utils.services.zeroconf_service import ZeroConfService
+from core.utils.services.broadcast_service import BroadcastHandler
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
+from api.ws import ws
+
+
+service_zeroconf= ZeroConfService(service_name="NITRINOnet_HardwareMonitor", service_type="_http._tcp.local.", port=8081)
+service_broadcast= BroadcastHandler()
 
 
 def create_app():
@@ -46,6 +53,21 @@ def create_app():
             ),
         ],
     )
+
+    #app.mount("/ws", ws)
+
+
+    @app.on_event("startup")
+    async def startup_event():
+        service_zeroconf.start()
+        #await service_broadcast.start()
+        print("Server is starting up...") # here will be checking signature
+
+    @app.on_event("shutdown")
+    async def shutdown_event():
+        service_zeroconf.stop()
+
+
 
     app.include_router(api_router)
 

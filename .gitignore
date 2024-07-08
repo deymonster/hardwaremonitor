@@ -52,3 +52,8 @@ result
 # frontend
 node_modules
 .quasar
+/backend/core/utils/crypto
+*.pem
+
+
+.idea
