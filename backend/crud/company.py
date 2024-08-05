@@ -28,7 +28,7 @@ class CRUDCompany(CRUDBase[Company, ICompanyCreate, ICompanyUpdate]):
                                 company_id: int,
                                 private_key: rsa.RSAPrivateKey,
                                 db_session: AsyncSession | None = None) -> int | None:
-        """Получение количества лицензиц компании по id
+        """Получение количества лицензий компании по id
 
         :param company_id: company id
         :param private_key: private key

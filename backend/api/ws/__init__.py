@@ -1,1 +1,1 @@
-from .websockets import ws
+from .websockets import ws_router

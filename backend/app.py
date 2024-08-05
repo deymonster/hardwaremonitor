@@ -6,14 +6,13 @@ from api.router import api_router
 from config import settings
 from core.db import pydantic_serializer
 from core.utils.services.zeroconf_service import ZeroConfService
-from core.utils.services.broadcast_service import BroadcastHandler
+from core.utils.services.broadcast_service import service_broadcast
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from api.ws import ws
+from api.ws import ws_router
 
 
-service_zeroconf= ZeroConfService(service_name="NITRINOnet_HardwareMonitor", service_type="_http._tcp.local.", port=8081)
-service_broadcast= BroadcastHandler()
+service_zeroconf= ZeroConfService(service_name="NITRINOnet_HardwareMonitor", service_type="_http._tcp.local.", port=8000)
 
 
 def create_app():
@@ -60,16 +59,20 @@ def create_app():
     @app.on_event("startup")
     async def startup_event():
         service_zeroconf.start()
-        #await service_broadcast.start()
+        await service_broadcast.start()
         print("Server is starting up...") # here will be checking signature
 
     @app.on_event("shutdown")
     async def shutdown_event():
         service_zeroconf.stop()
+        await service_broadcast.stop()
 
 
 
     app.include_router(api_router)
+    app.include_router(ws_router)
+
+
 
     # create_admin_panel(app)
 

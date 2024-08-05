@@ -1,5 +1,7 @@
 from broadcaster import Broadcast
 import asyncio
+import json
+from fastapi import WebSocket
 from core.utils.logger import HardwareMonitorLogger as Logger
 
 logger = Logger(__name__).get_logger()
@@ -11,32 +13,31 @@ class BroadcastHandler:
         self.tasks = []
 
     async def start(self):
+        """Start broadcast service """
         await self.broadcast.connect()
         self.running = True
-        self.tasks.append(asyncio.create_task(self.subscribe_to_topics()))
         logger.info("Broadcast service started")
 
     async def stop(self):
+        """Stop braodcast service """
         await self.broadcast.disconnect()
         self.running = False
-        for task in self.tasks:
-            task.cancel()
         logger.info("Broadcast service stopped")
 
-    async def subscribe_to_topic(self, channel):
+    async def subscribe_to_topic(self, channel, websocket: WebSocket = None):
+        """Get messages from a channel and send them to the websocket"""
         async with self.broadcast.subscribe(channel=channel) as subscriber:
             async for event in subscriber:
-                logger.info(f"Received message on {channel}: {event.message}")
+                if websocket:
+                    await websocket.send_text(event.message)
 
-    async def subscribe_to_topics(self):
-        await asyncio.gather(
-            self.subscribe_to_topic("agent_updates"),
-            self.subscribe_to_topic("agent_alerts"),
-        )
+    async def handle_websocket_agent_data(self, websocket: WebSocket, channel):
+        """Get message from the websocket and send it to the channel"""
+        async for message in websocket.iter_text():
+            #try:
+            #    data = json.loads(message)
+            await self.broadcast.publish(channel=channel, message=message)
+            await websocket.send_text(message)
 
 
-    async def send_update(self, data):
-        await self.broadcast.publish(channel="agent_updates", message=data)
-
-    async def send_alert(self, data):
-        await self.broadcast.publish(channel="agent_alerts", message=data)
+service_broadcast = BroadcastHandler()
