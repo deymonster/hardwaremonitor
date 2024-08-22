@@ -3,5 +3,6 @@ from . import (
     user,
     company,
     company_user,
-    license
+    license,
+    agent_trigger
 )

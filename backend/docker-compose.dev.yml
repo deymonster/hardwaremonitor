@@ -34,3 +34,27 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+
+  mongo:
+    image: mongo:4.4
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - .docker/mongo:/data/db
+    ports:
+      - "27017:27017"
+
+  prefect-server:
+    image: prefecthq/prefect:3.0.0rc14-python3.11
+    container_name: prefect
+    restart: unless-stopped
+    ports:
+      - '4200:4200'
+    env_file:
+      - .env
+    volumes:
+      - .docker/prefect:/root/.prefect
+    command: prefect server start

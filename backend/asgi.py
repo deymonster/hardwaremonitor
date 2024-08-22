@@ -12,6 +12,7 @@ if __name__ == "__main__":
         port=settings.APP_PORT,
         reload=True,
         reload_excludes=[
-            ".docker/*"
+            ".docker/*",
+            "__pycache/*",
         ],  # required for prevent crash by minio tmp in debug
     )

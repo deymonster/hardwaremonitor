@@ -15,10 +15,10 @@ logger = logging.getLogger(__name__)
 
 ws_router = APIRouter()
 
-redis_url="redis://localhost:6379"
-broadcast = Broadcast(redis_url)
+#redis_url="redis://localhost:6379"
+#broadcast = Broadcast(redis_url)
 
-broadcast.connect()
+#broadcast.connect()
 
 class ConnectionManager:
     def __init__(self):

@@ -19,6 +19,14 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: str = "6379"
 
+    # MondoDB
+    MONGO_HOST: str
+    MONGO_PORT: str
+    MONGO_NAME: str
+    MONGO_INITDB_ROOT_USERNAME: str
+    MONGO_INITDB_ROOT_PASSWORD: str
+
+
     @computed_field
     @property
     def REDIS_URL(self) -> str:
@@ -29,6 +37,11 @@ class Settings(BaseSettings):
                 port=int(self.REDIS_PORT),
             )
         )
+
+    @computed_field
+    @property
+    def mongo_url(self) -> str:
+        return f"mongodb://{self.MONGO_INITDB_ROOT_USERNAME}:{self.MONGO_INITDB_ROOT_PASSWORD}@{self.MONGO_HOST}:{self.MONGO_PORT}"
 
     # Postgres
 
